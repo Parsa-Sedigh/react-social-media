@@ -1095,7 +1095,22 @@ response.data is body or actual response from the server.
 There's a million different ways that a backend server could be configured for error, but our backend server is written to return false if
 it's not a correct username and password for login.*/
 /* 28-5. Render Different Components Depending on State:
- */
+You can edit that react snippet we made, to not have those react fragment tabs, because in most cases you won't need them.
+
+Because currently, within the HeaderLoggedOut file that sends of the request to server, we would have no way of accessing that
+piece of state which we currently declared in Header.jsx file. To get around that, we can pass it as a prop to HeaderLoggedOut.
+So give HeaderLoggedOut, a prop of setLoggedIn. So because we gave HeaderLoggedOut a prop, we need to include props arg for that
+HeaderLoggedOut function.
+
+You can add the props param by default in our react snippet.
+
+Because we haven't setup any sort of PERSISTENT data or local storage, we do need to sign in again, for testing logging out functionality.
+
+Currently anytime the browser refreshes, it forgets our state. So we need to use browser's local storage feature and look at interact with
+local storage from a react perspective.
+
+29-6. Persisting State (Local Storage):
+*/
 
 /* My notes:
 Because I think jsx is special, when you import some comp into another comp, you need to SPECIFY the jsx EXTENSION. But if you're

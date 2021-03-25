@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import Axios from "axios";
 
-const HeaderLoggedOut = () => {
+const HeaderLoggedOut = (props) => {
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
 
@@ -15,11 +15,12 @@ const HeaderLoggedOut = () => {
 
             if (response.data) {
                 console.log(response.data);
+                props.setLoggedIn(true);
             } else {
                 console.log('incorrect username/password');
             }
         } catch (e) {
-            console.log('There was a problem');
+            console.log(e, 'There was a problem');
         }
     };
 
@@ -37,7 +38,8 @@ const HeaderLoggedOut = () => {
                            type="password" placeholder="Password"/>
                 </div>
                 <div className="col-md-auto">
-                    <button className="btn btn-success btn-sm">Sign In</button>
+                    <button onClick={() => props.setLoggedIn(false)}
+                            className="btn btn-success btn-sm">Sign In</button>
                 </div>
             </div>
         </form>

@@ -16,7 +16,7 @@ const HomeGuest = () => {
                 password
             });
         } catch (e) {
-
+            console.log(e, 'there is a problem');
         }
 
     };

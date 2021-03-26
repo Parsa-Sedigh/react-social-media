@@ -3,8 +3,7 @@ import {Link} from "react-router-dom";
 import HeaderLoggedOut from "./HeaderLoggedOut.jsx";
 import HeaderLoggedIn from "./HeaderLoggedIn.jsx";
 
-const Header = () => {
-    const [loggedIn, setLoggedIn] = useState();
+const Header = (props) => {
 
     return (
         <header className="header-bar bg-primary mb-3">
@@ -15,7 +14,7 @@ const Header = () => {
                     </Link>
                 </h4>
 
-                {loggedIn ? <HeaderLoggedIn setLoggedIn={setLoggedIn} /> : <HeaderLoggedOut setLoggedIn={setLoggedIn} />}
+                {props.loggedIn ? <HeaderLoggedIn setLoggedIn={props.setLoggedIn} /> : <HeaderLoggedOut setLoggedIn={props.setLoggedIn} />}
 
             </div>
         </header>

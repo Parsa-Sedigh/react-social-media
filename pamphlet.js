@@ -1110,6 +1110,133 @@ Currently anytime the browser refreshes, it forgets our state. So we need to use
 local storage from a react perspective.
 
 29-6. Persisting State (Local Storage):
+Whether complexappToken exists in localstorage, we're gonna adjust that header, you could base the conditional logic on any of those properties
+in localStorage.
+
+I realize it might be a bit confusing or seem messy or unorganized that we're setting localStorage in one file(HeaderLoggedOut) and then
+we're accessing localStorage in ANOTHER file(Header) and we're removing localStorage in yet another file(HeaderLoggedIn). Later, we'll look
+at a more elegant way of handling this.
+
+30-7. Conditional Homepage Content:
+Currently, we want our app to smart enough to show the HomeGuest if you're logged out, but show Home if you're logged in. So in
+Main we need a conditional logic, so a ternary operator and in there say: if the piece of state that says if you're logged in or
+not is true, then show Home otherwise show HomeGuest. However, this is where we run into one of the most challenging aspects of learning
+react and that is managing and accessing our state throughout different parts of our app, because we need to remember that the piece of state
+that says whether you're logged in or not, CURRENTLY, lives within our Header comp. So it's within our Header comp, where we create a
+piece of state named loggedIn and our Main comp(parent comp of Header) has NO WAY OF ACCESSING STATE that was created within our Header comp(child).
+The solution is to move the state UP. In docs they refer to this, as lifting the state up, meaning move the state up your component tree into
+your top level component and then, any subcomponents or children comps, you can just pass it down as a prop as necessary.
+So now, cut that const [loggedIn, ...] = ... from Header and paste it in Main . Then we need to pass both of those loggedIn and setLoggedIn
+as props to Header(because Header depends on them). Then we need to receive(by adding a param of props to the function of comp) and
+use them in Header file. Then add a ternary operator for Home or HomeGuest(for path="/") in Main file.
+
+While the strategy of passing state down manually from component(parent) to component(child) to component ... , this way of doing things
+might ne the traditional or standard or idiomatic way of doing things. It's not the best way of doing things. Historically to get around this
+annoyance of having to pass down state manually as props(potentially many layers deep), to avoid that, in the past, many devs used a third party
+state management(redux).
+However, in the latest versions of react, we now have context and useReducer and in many apps you don't need redux anymore. */
+/* 31-8. Create Post Screen:
+When we're creating a SPA which means we don't actually want the browser to navigate to an entirely new html document, instead we want our
+react router to handle the navigation on the client side. So instead of <a href=""> we use <Link to=""> .
+
+It would be nice if that tile field was automatically focused when you navigate or reload the '/create-post' page. As you can
+see that related <input> for title has already autofocus attr. However in JSX it needs to be autoFocus with uppercase F. and the for
+attr for <label>s need to be htmlFor.
+
+Let's resolve the issue of having to type in that NO UNIQUE based portion of url every time we want to make a request to backend.
+Because the only unique part of the url is for example: /create-post endpoint. For doing that, in Main file, we can set the default or
+base url for all axios requests by using Axios.defaults.baseURL .
+With that, we just set that once within our Main file and now that will be used as the beginning portion for all reqs. So remove http:// ...
+from other comps.
+
+The token is how the server knows that it can trust our request. The token is how the server knows that we actually ARE who we say we are!
+Because remember the server is what gave us that unique or cryptographically secure token in the FIRST PLACE. So in handleSubmit() of CreatePost,
+we need to send the token.
+
+For pulling the whatever values the user typed into the fields, we need to use useState() for each of those fields to track the fields values.
+Like what we did in CreatePost. Then we need to add onChange event listeners for those fields(remember: we added onSubmit for overall <form>.)
+
+By using onChange={e => setTitle(e.target.value)} we're always gonna have the most recent value in state of that title and we can then send
+title(states) in body of post request.
+
+Also remember, if you leave either of those create post fields blank and then submit the form, our server is NOT gonna accept your request.
+Now YES, if we check the console, it won't gonna execute the catch block codes because of the server not accepting the request. Because
+if you check the console, it will LOOK as if it did accept that. However, if you actually look in the DB, there would be no new document.
+Our server only actually accepts the request, if neither of those 2 fields are blank.
+
+32-9. View Single Post Screen:
+We want to set things up, so once you create a new post, we would want to redirect to the new url for that newly created post. So first
+let's create that post component.
+
+React router is managing the browser's history for us and (for redirecting programmatically) we want to push a new url onto the end of
+that history and then react-router package will handle everything else for us. Now in order to work with react-router's history from within
+a comp, we need to use a tool from react-router named withRouter. When you want to use withRouter, you need to remove the name of exported
+function of component and instead write: withRouter(<name of function of comp>)
+EX) export default withRouter(CreatePost)
+Essentially, when we use withRouter() like that, it's gonna result in a component(in this case, CreatePost comp) that uses that component
+which we used in () of withRouter for the main meat and potatoes but react-router is gonna pass it(the comp that we passed to () of withRouter()),
+all sorts of useful things regarding the router and the history. So it pass that into the component through props. So now we need to receive
+those useful stuff by including props param in CreatePost() function and now inside props, we can access different things that the
+react-router package has given us(how it gives us those stuff? By using withRouter() and pass that comp function to () of withRouter() ,
+when we export that comp).
+Now by doing that, if you say: props.history.push('/...'); by doing that, react will navigate us to that url.
+
+In future lesson, we can use id segment of url of a single post, to fetch the relevant data for tht desired post.
+
+33-10. Flash Messages:
+We want to add flash messaging to our app. Where should the html for that flash message live? Because we wouldn't want that html to
+live in that CreatePost comp. Because as soon as you submit that form, we're navigating away from that CreatePost comp. Also we wouldn't
+want the flash message html to live within ViewSinglePost comp. Because what if you created a new post and then immediately clicked away to
+another page. The idea is EVEN if you switch to another page immediately, we would still want that success(flash) message to stay there
+for some seconds. So this brings us to conclusion that the html or jsx for our flash messages should actually live in our Main comp.
+So right above Header comp, we can render flash message comp.
+
+Remember: The logic of having that flash message disappear after 5 seconds, that's being handled completely by css animation code.
+It's not as if react is actually removing that element after a certain amount of time! We'll look at how to set sth like that later., but for
+this specific feature right now, I think an entirely css based approach will work just fine.
+
+At this point we want to be able to add one of those inner <div>s that actually CREATES a message(the inner <div>), into that overall
+<div>(<div className="floating-alerts">), but we want to be able to do it from another or from a different comp. Because we want to
+show a flash message after you've successfully submitted a post.
+For that we need to create another piece of state named flashMessages in Main comp.
+Now in terms of using that state, technically, we COULD just pass setFlashMessages into the CreatePost comp(because CreatePost comp will
+eventually CHANGE that state). However, since we're working with multiple messages(a collection or an array of messages), it's not as simple
+as just changing to a new value. Instead, we want to take the older previous state value and concatenate on, one more value to the end.
+So let's create a function and name it addFlashMessage() .
+
+Important: When you wanna work with the previous state value, you need to give set<state>() function, an anonymous function with a param named
+ for example, prev. So then you can work with that prev state value in that given function.
+
+concat() method doesn't modify or change the array that you call it from. Instead, it just returns a new array.
+The whole point of that new function, is now we can pass it into CreatePost comp and it's as simple as just calling the function and
+giving it a new message. So we won't worry about pushing it onto the old collection of array(states).
+Now before pass that function to CreatePost comp, let's first make the flash messages comp actually flexible or dynamic and give that comp
+the messages prop and as value we give it that piece of state that stores all of the messages and then in FlashMessages, include props to
+be able to receive the props that we have passed to that comp.
+
+In react, whenever you're looping through a collection and outputting a comp(or some html) for each item in that collection, you want to
+be sure to give the overall element(which that overall element is parent of all returning html) a key attr and for value of that
+key attr, you can pass it a unique thing of that current item.
+
+Now pass CreatePost comp, a prop named addFlashMessage.
+So actually, we're giving the update function of flashMessages, somehow(because we aren't passing it directly to that comp, instead pass another
+function that uses that update state function) to CreatePost comp, because that's the actual comp that is responsible for changing the
+state of current flashMessages and give the actual state value to FlashMessages comp. Then in CreatePost go to where you're performing the
+redirect after a successful post is created and above that, use that addFlashMessage to update the state of flashMessages.
+
+The approach we took in this lessons works, but now we need to realize that we're going to want to be able to add a flash message from just
+about ANY COMPONENT or every comp in our app. Not just the CreatePost comp. So in Main file, yes, we were able to manually pass that
+addFlashMessages function into that CreatePost comp and that did let us modify the state that LIVES in Main comp, from
+within a DIFFERENT(that's why we needed to pass that update function to that other comp) comp(CreatePost).
+But the question is would we really want to have to manually add a prop like that to EVERY SINGLE comp where in those comps we would want to
+leverage that function?
+It feels repetitive and there's a better way in order to approach state.
+
+To be more specific, right now the question is: if we have a piece of state in our overall or TOP (parent) level comp, what is a more elegant way of
+letting any sub or CHILDREN components work with that state?
+We need to use context.*/
+/* SECTION 6. Leveling Up The Way We Approach State:
+34-1. Context:
 */
 
 /* My notes:

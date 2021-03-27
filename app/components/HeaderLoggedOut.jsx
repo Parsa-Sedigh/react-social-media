@@ -1,9 +1,12 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import Axios from "axios";
+import DispatchContext from "../DispatchContext.jsx";
 
 const HeaderLoggedOut = (props) => {
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
+    // const {setLoggedIn} = useContext(ExampleContext);
+    const appDispatch = useContext(DispatchContext);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -15,10 +18,15 @@ const HeaderLoggedOut = (props) => {
 
             if (response.data) {
                 console.log(response.data);
+                /*
                 localStorage.setItem('complexappToken', response.data.token);
                 localStorage.setItem('complexappUsername', response.data.username);
                 localStorage.setItem('complexappAvater', response.data.avatar);
-                props.setLoggedIn(true);
+                 */
+                // props.setLoggedIn(true);
+                // setLoggedIn(true);
+                appDispatch({type: 'login', data: response.data});
+
             } else {
                 console.log('incorrect username/password');
             }
@@ -41,8 +49,7 @@ const HeaderLoggedOut = (props) => {
                            type="password" placeholder="Password"/>
                 </div>
                 <div className="col-md-auto">
-                    <button onClick={() => props.setLoggedIn(false)}
-                            className="btn btn-success btn-sm">Sign In</button>
+                    <button className="btn btn-success btn-sm">Sign In</button>
                 </div>
             </div>
         </form>

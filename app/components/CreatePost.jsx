@@ -1,28 +1,36 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import Page from "./Page.jsx";
 import Axios from "axios";
 import {withRouter} from 'react-router-dom';
+import DispatchContext from "../DispatchContext.jsx";
+import StateContext from "../StateContext.jsx";
 
 const CreatePost = (props) => {
     const [title, setTitle] = useState();
     const [body, setBody] = useState();
+    // const {addFlashMessage} = useContext(ExampleContext);
+    const appDispatch = useContext(DispatchContext);
+    const appState = useContext(StateContext);
 
     const handleSubmit = async (e) => {
-            e.preventDefault();
-            try {
-                const response = await Axios.post('/create-post', {
-                    title,
-                    body,
-                    token: localStorage.getItem('complexappToken')
-                });
-                console.log('new post was created');
-                props.addFlashMessage('Congrats, you successfully created a post.');
+        e.preventDefault();
+        try {
+            const response = await Axios.post('/create-post', {
+                title,
+                body,
+                // token: localStorage.getItem('complexappToken')
+                token: appState.user.token
+            });
+            console.log('new post was created');
+            // props.addFlashMessage('Congrats, you successfully created a post.');
+            // addFlashMessage('Congrats, you successfully created a post!');
+            appDispatch({type: 'flashMessage', value: 'Congrats, you successfully created a post!'});
 
-                // redirect to new post's url
-                props.history.push(`/post/${response.data}`);
-            } catch (e) {
-                console.log('there was a problem', e);
-            }
+            // redirect to new post's url
+            props.history.push(`/post/${response.data}`);
+        } catch (e) {
+            console.log('there was a problem', e);
+        }
     };
 
     return (

@@ -1237,7 +1237,312 @@ letting any sub or CHILDREN components work with that state?
 We need to use context.*/
 /* SECTION 6. Leveling Up The Way We Approach State:
 34-1. Context:
+Learning about context, will let us pass data DOWN throughout our comps in a more elegant way. So in Main file we created that addFlashMessage
+function and we manually passed it down to our CreatePost comp. HOWEVER, we realized that we're gonna want to be able to use that
+addFlashMessage function from within many many of our comps and having to pass it down manually as a prop like
+that(in Main file: <CreatePost addFlashMessage=... />) is quickly gonna become annoying and cumbersome and that's just one layer deep!
+What's worse is if we think back to our loggedIn state and setLoggedIn function, remember, in Header comp in Main file, we manually passed
+those state and setState function into that overall Header comp, but then even in our Header file, we have that conditional code where it
+either shows HeaderLoggedIn or HeaderLoggedOut and in both of those cases we're manually AGAIN! passing setLoggedIn as props to both of those
+comps. That's annoying and that was only us having to pass it 2 layers deep.
+
+So wouldn't it be nice if in Main file we could just wrap our entire bit of jsx within one overall parent or container comp and give it a value
+and then wouldn't it be nice if ANY and EVERY component nested inside it, could directly consume that value, no matter how many layers deep
+they're nested. That's what context in react lets us achieve.
+
+Let's create a new file, not it's not a huge deal but I don't want us to create the new file in components folder and let's create it in our app
+folder and name it ExampleContext. In there, we do not just want to type rc and then hit tab, because that's not a traditional react comp,
+instead, in this case we only need to import createContext from react library. So import {createContext} ... after exporting that context, go
+to Main file and we know that right now, our overall or top level component is <BrowserRouter>, so now even above that line write:
+<ExampleContext.Provider> and then add it's closing tag in the END of jsx to wrap that entire jsx with context. Then on opening tag of
+context provider, we give it a prop and it needs to be named: value and for it's value, whatever we include in those {}, ANY CHILD COMPONENT,
+no matter how many layers deep it is nested, will be able to access that value. So in our case use addFlashMessage function for value of value
+prop of Provider.
+Now how would we access or CONSUME that value from within our CreatePost component(child comps)?
+First get rid of that prop of addFlashMessage={addFlashMessage} for CreatePost in Main file. Because we're currently using context, so you
+don't have to manually pass down data as props like that.
+
+Now go to that child comp to consume(or use) that context value. Then in CreatePost, comment out the line that is using addFlashMessage as
+a prop and write: const addFlashMessage = useContext(...);
+Now in () of useContext() , we need to tell it which context we want to use?
+Now this is why we created our context in a separate file, so that we can import that file(context file) from within ANY FILE we want.
+
+Now after giving the context function to useContext of that child comp, we know that within our Main file and on our Provider that wraps
+everything, we gave it a value. So that value gets added to the context provider and remember, that context is coming from that separate
+file. So then in child comps(like CreatePost) we're working with that same piece of context, so it has access to that value that we added to
+it and remember we gave it a value of addFlashMessage function but the idea is we could have given it a value of ANYTHING.
+
+So now we can access that value of context, directly from ANY component nested inside that Provider.
+The way useContext() works is, it's gonna look up the component tree and it's gonna find the nearest or closes ancestor that uses that
+context provider(in our case ExampleContext) and the beauty is, it doesn't matter how many component layers nested deep you are.
+
+Also in Header in Main file, we're having to pass setLoggedIn not once but twice or 2 layers deep, because in Header, we're also passing
+setLoggedIn to HeaderLoggedIn and HeaderLoggedOut AGAIN, for the second time.
+
+Now the question is, in Main, on that context Provider, is it possible that we could have the value be more than one thing? In other words,
+could we not only make addFlashMessage available, but could we make setLoggedIn ALSO available to any children comps?(So can we make multiple
+values available to all of the child comps and child of those child comps and ...?)
+YES!
+So on the context provider and in value of value prop, let's empty out it's {} and inside those {}, add ANOTHER {}. So essentially we're setting
+the value to be an object and then we can give it MULTIPLE properties and now we can get rid of that props for Header in Main. So we no longer
+need to manually pass in setLoggedIn like that. Technically we COULD move loggedIn to our context as well, but let's keep this example simple.
+
+Now before we adjust our Header, we do need to go into CreatePost and when we're creating addFlashMessage variable, well, that useContext() is
+no longer gonna return just a single value which is the function that we want. Instead, we would want to de-structure the object that it's
+returning. Because it's returning an object with multiple properties now. So for destructuring an object, we would wanna wrap the variables
+in {}. We don't need to use context in Header and we just need to get rid of that manually passed down setLoggedIn prop on both
+HeaderLoggedIn and HeaderLoggedOut. And instead of using context in Header, we can go in deeper layers like HeaderLoggedIn and HeaderLoggedOut
+and in THOSE PLACES, we can use useContext() .
+
+So we had a good refactor.
+So anything that lives within that Provider, (no matter how many layers deep)can consume and use the value(the object) we passed to value prop.
+
+35-2. useReducer:
+useReducer is another way of working with state in react. So we could say that useReducer is an alternative to useState, so useReducer is like
+a sibling or cousin of useState. Now if the two are similar, the question is why or when should we use useReducer instead of useState?
+Both useState() and useReducer() return an array with 2 things. The first thing they return is a piece of state and the second thing
+that it returns is sth that you can use to call an update state. However the huge difference is that when you use useState(), the function that
+it gives us is quite simple. You call that function and then whatever value you pass into it, that will be the new state.
+But with useReducer() , the second thing it gives us is th called a dispatch.
+In () of useReducer() , we give it 2 things. The first is a function. So we can create a new function named ourReducer() and pass that
+function as first arg of useReducer() . The second arg is the initial value for your state(whatever your initial state to have as a value).
+So we can create a variable like: const initialState = {}; and then pass that variable as second arg.
+
+Now we can imagine our state contains ALL SORTS OF DIFFERENT data, for example whether we're logged in or not, any flash messages that should
+be shown. Imagine that all sorts of DIFFERENT data about our app lives within that one overall object(initialState variable).
+With dispatch, we can perform all sorts of different actions. So the idea with dispatch is that you're just saying what you WANT to do but
+you're not having to spell out HOW it actually gets done. That's where our reducer function comes into play(ourReducer()).
+That's(the reducer function) where you would actually say how those dispatch() things happen or how the state data of our app
+should change for those particular actions which those actions are performed with dispatch().
+
+Important: For that, let's give reducer function 2 params, state and action. The idea here is that anytime you call dispatch(), whatever you
+ include in () when you call dispatch() , that's what's going to get passed along into our reducer function as the action.
+So essentially when we say: dispatch({type: 'login'}); , we're dispatching a command to make a login action. Only you'll notice that
+when we're calling dispatch(), we're not having to babysit state or really think about HOW those things happen. Instead, All of that
+complexity and all of that different logic should live within your reducer function.
+
+So now within the body of our reducer function, there's many different ways you could handle it, but the standard or idiomatic way of handling it,
+is to use a switch() and the switch is based on(the thing we pass to () of switch()) action.type.
+
+In switch() you just outline the different cases, depending on what the value of the thing in () of switch(), is.
+So now we just say what should HAPPEN, if the action.type is 'login' or ... . But the idea is tht all of that is condensed into that
+one central location(inside that switch()).
+
+Now in our case(in our app), we wouldn't actually call dispatch() within our Main file. Instead, the idea is we have that one super convenient
+thing called dispatch, that we can now pass DOWN to ALL OF OUR CHILDREN COMPONENTS. I mean you absolutely COULD use dispatch() directly within
+Main file, but if we think of our context provider example, imagine how powerful this is. Because:
+Important: We can just set the value of context provider to be dispatch function and then within ANY component in our app, no matter how
+  many layers nested deep it is, you could JUST CALL dispatch() and you wouldn't have to think about HOW actions actually get done and
+  therefore, you wouldn't have to babysit state and you just say WHAT ACTION you WANT TO dispatch or what action you want to make happen and
+  then our reducer function will take care of everything else.
+  (Remember: We setup useReducer() and it's params(the reducer function and initial state) in Main file and then we add dispatch to
+  context provider and in any child comp, no matter how many layers deep, we just call dispatch(<the action>) and then in our reducer function,
+  we can receive that action and execute some code for that action)
+  Now in reducer function, no matter what the case or what the type of action is, we ULTIMATELY want that function to return the NEW STATE VALUE.
+  So it's up to us. However, we think we need to change the state to now reflect the fact that the user logged in, well, that's the overall
+  state object that we would return there for case 'login'.
+and before we actually worry about what we return for those cases of switch(), let's focus on our initialState and add 2 props to that object.
+The idea is instead of using useState() and having SEPARATE pieces of state for loggedIn and flashMessages(which are both SEPARATE variables that
+hold the state), let's combine them and use useReducer() . So previously we set our initial value for loggedIn to: look to see if a
+localStorage item named complexappToken existed or not(a boolean)? So we would use that same value that we gave to useState() as initial state.
+
+Now with our initialState variable in place, I think our job of what we need to do in ourReducer() function should now be clear. So within
+that function, the first param which is state, represents the PREVIOUS or the current state value. So depending on what the different
+action is(in our case, action can be login, logout, or ...), it's our job to use the previous or current state and make some sort of
+CHANGE to it and that's what we return in those case statements for each action.
+Important: In react you don't want to directly modify or mutate state. So instead, we want to create a new object based on the previous values.
+In each action inside reducer function, we want to return an object and essentially we just want to create an object that mimics our INITIAL
+STATE but we make any necessary CHANGES. So in case of login action, we want to return an object which has property of loggedIn CHANGED to true and
+because we want to MIMIC our INITIAL STATE, we also want to add that exact property name of our initial state which is flashMessages to our
+returning state object, but now this time, we don't want to change it(we're not adding a flash message), so we just pull it's value
+from the previous state and we know that the previous(current) state is in the first arg of reducer function which is state arg().
+
+The object(state object) we return from actions of reducers, must mimic our initial state object, so it's property names must be the exact
+names, in other words, we return that exact initial state object but with some changes to it's values of properties.
+
+Now I realize we could do that creating or mimicing the initialState object when we're returning the new state object in actions by using
+spread operator or destructuring or some sort of es6 trick, but in future we'll use immer to sidestep this whole issue or having to AVOID
+directly mutating state. But for now, that object we're returning will do the trick(currently we're actually CREATING a new object by hand).
+
+For flashMessage action and for flashMessages prop of returning object, we would want to take the previous value and then concat in the
+new message to that old array and for value for () of concat(), we know that when we call dispatch() in nested comps, in addition to type prop
+which we pass to () of dispatch() , we can give it any other properties we want, which that type prop and other props we gave to dispatch(),
+will be available in second arg of reducer function. So:
+Important: The object you pass to dispatch(), will be available as second arg of reducer function. So when we call dispatch() like:
+ EX) dispatch({type: '', value : '', ...}) that object will be available as second arg of reducer function which in our case, we named
+ that second arg, action. So here, we would have action.type and action.value and ... within that reducer function.
+So you can imagine we give dispatch() also a prop of value and we used it in flashMessage action.
+
+Now for time being, that completes our reducer function.
+
+EX)
+const initialState = {
+    loggedIn: false,
+    flashMessages: []
+};
+
+const ourReducer = (state, action) => {
+    switch(action.type) {
+        case 'login':
+          return {...};
+
+        case 'logout':
+            return;
+
+        case 'flashMessage':
+            return;
+    }
+};
+
+const [state, dispatch] = useReducer(ourReducer, initialState);
+
+dispatch({type: 'login'});
+another ex:
+dispatch({type: 'flashMessage', value: 'you created a post'});
+
+What is useReducer() really doing?
+When we call it, we give it function and our initialState and in return, it gives us 2 things. We chose to name those 2 things, state and
+dispatch. The reason this is cool, is now we have JUST 2 things that can power our ENTIRE APPLICATION! What do I mean by that?
+In previous lesson, we learned about context and we were already having to pass tons of different values in as the value prop of that Provider.
+So currently we're passing addFlashMessage and setLoggedIn as values of context and as our app grew*, we would have to just keep passing MORE AND
+MORE things in value prop of context provider. However, if we use useReducer() , now the only THINGS we would EVER need to pass in to context
+provider, is our overall state object and our dispatch. JUST THOSE 2 THINGS, can allow a potentially infinite number of different actions and
+different changes to state.
+
+Currently, we haven't actually seen it in action yet! However at thins point, now that we've actually CONFIGURED our REDUCER, we're gonna
+work on adding them to our context provider and then making USE of state and dispatch, WITHIN our different(nested) cops.*/
+/* 36-3. A Powerful Duo useReducer & Context:
+We're gonna learning about a powerful duo!
+Important: Now that we've setup our reducer, we're ready to actually start using it by dispatching actions and if we combine this with the
+ power of context, it will be easy to dispatch actions from within ANY component in our app!
+
+So our goal is to remove the old way that we were working with state for loggedIn and flashMessages that were(both) created using useState().
+So let's comment those 2 lines of useState() for loggedIn and flashMessages in Main and also comment the addFlashMessage() function.
+So the idea is we're gonna recreate all of that functionality using our reducer. Actually, we've ALREADY spelled out different actions and
+how our state should change(when those actions are dispatched).
+So now in this lesson, we just want to pass state and dispatch which are returning results of useReducer() , into our context provider, so we
+can access that data within our comps. So on <ExampleContext.Provider> let's change the value to state and dispatch. So we write:
+<ExampleContext.Provider value={{state, dispatch}}> instead of <ExampleContext.Provider value={{addFlashMessage, setLoggedIn}}>.
+
+HOWEVER, I do need to stop here and make things a bit more complicated. So that setup(with passing state and dispatch in context) would work
+but it's not optimal from a performance standpoint, because we need to acknowledge tht anytime, anything in that object that we've spelled out
+in context provider(which in this case that object is {state, dispatch}) CHANGES at all, ANY COMPS that are CONSUMING that context will re-render
+to make sure that they have that latest value({state, dispatch} value). So some of our comps will not need access to our global state(global
+state is the state variable that we're passing in value attr of context). Instead, some comps will ONLY need access to our dispatch and so
+we wouldn't want those comps, unnecessarily re-rendering everytime global state changes.
+
+So the way that react team recommends we set this up is to simply have 2 context providers in our jsx. One context provider for state and
+one context provider for dispatch. That way it can be up to each component to decide which context they WANT to consume and watch for changes.
+So let's delete that opening ExampleContext provider which currently is our first line in jsx of Main and instead, let's have:
+<StateContext.Provider value={state} />
+    <DispatchContext.Provider value={dispatch} />
+
+So RIGHT BELOW(nested inside) <StateContext />, we use our <dispatchContext />
+
+You can delete ExampleContext because we don't need it anymore.
+
+At this point, we made state and dispatch available from within ANY comp in our app. Now we need to go into those comps and make them leverage
+that state and dispatch.
+
+Currently, we now longer has a variable named flashMessages, we have a PROPERTY named flashMessages which lives in our overall state object.
+Now let's remove the manually passing of states like loggedIn in our Main.
+
+Also you can make FlashMessages comp to use context not messages props. But we leave it as it is.
+Now create a variable named appState and assign it useContext() to actually use our context provider in Header.
+
+We used appState and appDispatch for variable names for result of useContext() in comps that use StateContext or DispatchContext, so that way,
+the name of dispatch can be available later on, for hta particular local component. Essentially, we're using a prefix of app to sort of mean
+global or app wide.
+
+Important: The type prop in object that we pass to our dispatch()s, is TYPE of ACTION we want to dispatch.
+
+Because in Main file we're on the same file that creates context, we don't need to use useContext() and we can for example use:
+state.loggedIn inside <Route path="/"> .
+
+Now you need to perform a manual refresh, because some of our changes when we were halfway through our work, definitely created errors.
+
+So being able to define all of your complex logic in one place and then not having to babysit state elsewhere, just being able to dispatch
+actions carefree and not really caring HOW it gets done, can be a lifesaver.
+
+So far we've learned about context, useReducer and the final piece of puzzle is immer. Because we never want to directly mutate or change
+our state. Instead, you give react new value or new object and it handles updating your app's state. */
+/* 37-4. What is Immer:
+In ourReducer function, for each different type of action that gets dispatched, we would want to update the state of our app in a different
+way. For example in 'login' action type, all we would REALLY want to CHANGE, is to make sure that the loggedIn property now has a value of
+true. However, EVEN THOUGH we're NOT CHANGING flashMessages, we STILL HAVE TO SPELL IT OUT(mimic the initialState), because in react you need
+to return a new object. You can't directly modify or mutate the existing state object. Now in this example, we ONLY have 2 properties, but
+imagine if you had 20 or 30 properties. If you ONLY want to update ONE of the properties, you really wouldn't want to have to spell out all other
+properties again. So we really want to JUST change the things that we ACTUALLY want to change, not all of the properties again.
+
+Immer will give us a draft, essentially a carbon copy of state(the first arg of reducer() functions) and then we're free to directly modify
+and mutate that draft. So install immer and use-immer packages, the second oen is specifically related to using immer within the context of
+react.
+
+We don't want to import the WHOLE package, so we use {} in import statements and in {} you specify the things you're interested to import.
+
+You can also use immer as a replacement to react's useState() and react's useReducer() , but in Main we're using immer as a replacement to
+react's useReducer() . So in place where we're using react's native userReducer() , instead use useImmerReducer() . Then go to
+reducer function and change the name of first arg of that function from state to draft. Because what immer does is it gives us a copy of
+state. Or in other words, a perfectly cloned copy that we're free to modify and change and then immer will automatically handle the
+task of giving that draft object, back to react. So I commented out the old way of cloning stuff, because we don't need to clone them manually
+anymore and in flashMessages action, instead of concat() we used push() . Because this time, we actually DO want to directly modify
+or mutate that flashMessages array.
+So essentially immer gives us a draft and then we can directly modify it however we see fit. This saves us from having to spell out the
+entire object everytime.
+
+While we no longer need to return a value for the sake of react, we do still need to pay attention to the way that a switch case syntax works
+in JS. So at the end of each case statement you still would either want to just return nothing(undefined) or use break keyword.
+
+At this point, we now have an ideal way of working with data in react. We have 3 big things.
+1) context: which makes it easy to share data throughout the entire app(from parent to nested comps)
+2) A reducer: which lets us keep all of our logic in one centrally located place.
+3) immer: makes it easy to work with complex objects in an immutable fashion.
+
+I mentioned that it's messy or unorganized that we're setting(an item in) localStorage in oen file and then accessing it from another file and
+then deleting it from yet another file. So we're gonna fix that and make sure that any sort of localStorage work, happens within our Main file.
+
+38-5. useEffect Practice:(moving side effects into useEffect())
+The problem we want to solve is: we're saving and loading that data to localStorage from way too many different files in our code.
+working with the SAME piece of data in many different locations like this, is the number 1 cause of bugs and unexpected problems in your app as
+it grows. Our goal is to restructure things so that all of our loading and saving from localStorage, takes place ONLY within Main file.
+
+Let's add another property to initialState of Main file, named user and set it to be an object with 3 properties. So the idea is we now have
+that user object that will be available in our global or app-wide state. So now any other (nested) component that needs to access that data about
+user, will no longer need to talk to the browser's localStorage, instead, it can find those values in state.
+But the question is: How should those values of user object, get set into localStorage IN THE FIRST PLACE which is when you perform a
+successful login?
+Well, we would ALSO perform that within our Main file. So now, go to HeaderLoggedOut and the idea there is we don't want to be working with
+localStorage from within all sorts of different files throughout our app. So what I would do in child comp(in this case it's HeaderLoggedOut),
+is send the server's response(the data) back to our reducer function, through our dispatch.
+So comment out those 3 lines where we're dealing with localStorage in HeaderLoggedOut and then on the line tht we're sending a dispatch with
+type of 'login', I would just give it ANOTHER property and you could make up any property name you want, but I named it data and we give it
+the object that the server sends back to us. Then go back to Main and then work with that new property named data. Go to reducer function and
+in it's 'login' action set the draft.user = action.data
+
+So now throughout our ap, whenever we need to access the token, username or avatar, we can just pull that from state, instead of from
+localStorage. However, before we make those adjustments throughout our comps, first we need to SAVE those values that server sent to us, into
+localStorage in the first place when you login. Because remember we just commented out that code within HeaderLoggedOut which was the code
+that was saving the values into localStorage, so we need to do that in Main.
+Now technically, yes, we COULD just include code(saving to localStorage), right in the body of that 'login' case and that code saves it into
+localStorage, but philosophically we want to keep our reducer PURE, in terms of it ONLY WORKING WITH REACTISH THINGS or only working with
+state. In other words, if we need to do sth that's considered a side effect like directly changing the browser's DOM in rare situations, or
+in this case, working with browser's localStorage, we should probably do those types of things within a useEffect.
+
+So right below const [state, dispatch] = ... ; let's use useEffect(). The second arg of useEffect() is an array of dependencies tht you want to
+watch for changes and in this case we're watching state.loggedIn, so now anytime that state.loggedIn changes, that first arg which is a
+function will run.
+
+Now we need to make our app to pull data from state's user prop and not directly from localStorage.
+
+You have 2 way of using hooks:
+1-Easy access: This is done by importing React and then those hooks in {} so like: import React, {useContext} from 'react';
+ Now you can JUST write the hook without React. .
+2-normal: We just import React and then where ever you want to use a hook, you need to write: React.<name of hook> */
+
+/* SECTION 7. Actually Building Our App:
+39-1. Profile Screen:
 */
+
 
 /* My notes:
 Because I think jsx is special, when you import some comp into another comp, you need to SPECIFY the jsx EXTENSION. But if you're

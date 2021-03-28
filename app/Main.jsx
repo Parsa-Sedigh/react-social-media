@@ -15,6 +15,7 @@ import ViewSinglePost from "./components/ViewSinglePost.jsx";
 import FlashMessages from "./components/FlashMessages.jsx";
 import StateContext from "./StateContext.jsx";
 import DispatchContext from "./DispatchContext.jsx";
+import Profile from "./components/Profile.jsx";
 
 Axios.defaults.baseURL = 'http://localhost:8080';
 
@@ -96,6 +97,9 @@ const Main = () => {
                         </Route>
                         <Route path="/post/:id">
                             <ViewSinglePost/>
+                        </Route>
+                        <Route path="/profile/:username">
+                            <Profile />
                         </Route>
                     </Switch>
                     <Footer/>

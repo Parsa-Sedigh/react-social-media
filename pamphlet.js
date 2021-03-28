@@ -1541,6 +1541,68 @@ You have 2 way of using hooks:
 
 /* SECTION 7. Actually Building Our App:
 39-1. Profile Screen:
+If you have a simple string, you can use "", but if you want to use backticks and template literal, you need to first include {} and then
+inside it, you can use backticks.
+
+useParams() will return an object that can potentially have many different properties.
+Important: React is going to execute the function of a component, anytime ANY of it's state changes or anytime any of IT'S PROPS FROM A
+ PARENT COMPONENT changes.
+And for case of Profile comp, we really don't want to be sending off new network requests with axios, everytime that happens.
+So we can't just write: axios.post() in Profile comp. Because that would send a request, everytime that comp changes, so this is where
+useEffect is the perfect tool for the job and as of right now, we don't need to watch for anything changing, so an empty array is our way
+of saying: "hey react, we only want you to run this function(which is the function of component), the very first time this comp is rendered."
+
+As of today in react, you can't use async function as first param of useEffect() . To get around that we need to STILL pass a normal NON async
+(anonymous)function as first param of useEffect() and then inside that anonymous function, we create an async function and then RIGHT AFTER
+we define that function, we can IMMEDIATELY call it, by using it's name and () .
+EX)
+useEffect(() => {
+         const fetchData = async () => {
+            try {
+
+            } catch (e) {}
+         };
+         fetchData();
+}, []);
+
+We need to send our token in /profile/:username so with that, the server can figure out if we (the current user) are following this user or not?
+In this case, we or the current user means, the actual viewer of this page(/profile/:username) which the data of this current viewer can be
+found in token and this user means, the profile that we're viewing currently, which it's username is in the url segment. So we're
+sending both viewer of page and the token of viewer currently viewing, to the server. So with that, the server can find out if viewer
+of page is following this profile or not.
+So we want to know that the viewer of page is following that profile or not? So we need to send username of profile of page which
+we passed it to server in url and also we're sending the token of current viewer in body of request. In response, server tells us that
+if the current user that's logged in with that passed token is following this profile user or not? and other stuff.
+
+Now in order to access token in Profile, we want to use our StateContext.
+
+In () of useState() we can provide an initial value and in initial value of useState() , we would just mimic the object that the server is
+going to send back, however, only I would give it the values that would make sense to display there(in profile page). So because
+we don't know the username of profile that a viewer is viewing(until the request come back from backend), we need to make up a name
+for that profile page and the best value for it is just: ''. Also the avatar image for the profile page while the data of that profile
+isn't come back yet, is an anonymous looking person picture, right? and so it goes other data of profile to show, while the response isn't back yet.
+For that, we HAVE TO USE STATE and give the useState, these initial values that I mentioned and when the server came back from server,
+we can update that state to tell react to re-render that comp. So I've passed some initial states like:
+        { profileUsername: '',
+          profileAvatar: 'https://...',
+        }
+
+This is one approach, another approach is to use a loading spinner.
+So the idea is, now that INITIAL state will now be IMMEDIATELY available, as soon as that Profile comp tries to render and then however long
+our request takes, whether it's 20 milliseconds or 2000 milliseconds, we can just update that piece of state by using setProfileData()
+and react will automatically re-render things with those values for us.
+
+So now currently, those placeholder values(initial values which immediately is show to user before the response come back) are being used.
+So now all we need to do is: once our request finally finishes, we need to update that piece of state.
+So in Profile and when the response came back, we need to use setProfileData(response.data) to update the profileData state.
+
+So now when you visit the profile of someone, you can see for a little time, you see the placeholder values(initial state values), but after
+response came back, we see the response data.
+
+After using those new pieces of state and NOT using that setProfileData() function to update state when the response came back, if you
+see the browser, you can see for example that ... for username and that default avatar and ... .
+
+40-2. Load Posts by Author:
 */
 
 

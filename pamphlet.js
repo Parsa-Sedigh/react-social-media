@@ -1603,6 +1603,185 @@ After using those new pieces of state and NOT using that setProfileData() functi
 see the browser, you can see for example that ... for username and that default avatar and ... .
 
 40-2. Load Posts by Author:
+Let's pull in the posts that a user has created. Let's move that <div className="list-group"> which currently is in Profile, to it's own
+separate comp and we call it ProfilePosts. But why we did this?
+Because eventually we're gonna setup client side navigation so that when you click on followers or following, that would swap our or switch
+the contents in that <div className="list-group">. In other words, we're gonna want to change which content is displayed in the place where
+currently <div className="list-group"> lives, depending on which navigation link you've clicked on. Therefore, we need to move that
+<div className="list-group"> to live in a separate file, so that it's easy to switch back and forth between different content.
+Then in Profile, we need to import that newly created comp in where it's content was lived before.
+
+So now when you have some navigation links which with them you want to change some html to be based on the route we're currently in,
+you need to move that html to a SEPARATE FILE.
+
+We gave an initial value of true to useState() of isLoading in ProfilePosts, because when you FIRST COME TO THAT PAGE(profile page)
+and that ProfilePosts comp is rendered, the actual raw data for those posts will still be loading and it's not successfully loaded YET.
+So it makes sense to set it(isLoading) to true and then once our request has actually loaded the data, we can update isLoading with help
+of setIsLoading to be false. As long as isLoading is true, we show an animated loading icon or the word loading and then once it's set to
+false, then we can show that real content.
+
+So we can setup and if statement and instead of that huge jsx, we can return another jsx that we specified inside that if statement.
+
+Now let's create a piece of state that will STORE the raw data for all of the posts(the posts that would come back from http request) and
+I named that piece of state, posts.
+
+When you want to send an http request when the component is rendered, you DON'T just want to write that request without wrapped in a useEffect()
+and therefore just a plain request inside the body of function comp. INSTEAD, we want to include that request within a useEffect() call.
+WHY?
+Important: Because remember in react, the function of the component is going to run, ANYTIME STATE CHANGES OR ANYTIME ANY PARENT PROPS
+ THAT ARE BEING PASSED INTO THAT COMPONENT, CHANGE.
+Therefore we need to use useEffect() to only send that request once. Also I just passed an empty [] meaning we only want to run that
+useEffect()'s first arg function when that component first renders.
+Inside useEffect() we defined an async function and then right after we defined that async function, we immediately call it because we can't
+make the function we passed to first arg of useEffect() can't be async at this time. In other words, you can't pass useEffect() an async
+function directly.
+
+Important: In react, when you're looping through an array and rendering sth for each one(each item in that array), you do want to give each element
+ a unique key. So on the parent element of the thing that you're rendering for each item in that array, give that parent element a prop named
+ key and for the value of that key, choose sth that would be unique for each of those items, like the _id in mongodb for each document.
+So I added a key prop to <a> element, because that's the parent element of all returning jsx, inside map(). (but later we will convert
+this <a> element to <Link> component).
+In case of ProfilePosts comp, in addition to title and body content, the server is also giving us the unique _id for each post, because each
+post is a document in our mongodb.
+
+With traditional html, if you have just one character of white space, that space is rendered to the browser. But in react, well, react doesn't
+honor the whitespace in between elements or comps. Therefore in ProfilePost, we added a {' '} (quotes with a space) after that <strong> tag,
+so the texts in that place don't stick to each other(and we couldn't just add a space there, because react doesn't honor just a simple whitespace).
+
+So in react, if your html layout actually depends on whitespace, this is the way around it: {' '}. So now between the name of the post and the
+word 'on' we have a single whitepsace character.
+
+We created a variable called date and assign it the new Date() object, but, based on string of text that the server sent which represents
+the data the post was created on. So I passed that data which server sent to us in () of new Date() .
+But new Date(post.createdDate) doesn't look pretty to human eye, so we need to format it, because there's many different ways to display a date.
+
+I intentially declared those date and dateFormatted variables INSIDE the function we passed to map(), because I want to EACH ITEM IN THAT
+posts variable, to have those 2 date and dateFormatted variables to show them inside it's jsx. So it's good to create those 2 variables
+inside the map() , because inside So I created that dateFormatter variable.
+Also I added + 1 to date.getMonth() because dates are zero based, but in real life we don't consider january to be the 0 month.
+
+We don't want to return an actual <a> element because we don't want the browser to actually render an entirely new html document. Instead we
+want to use client side routing. So we need <Link>. So let's get easy access to Link, so let's add Link inside {} when importing it from
+it's npm package.*/
+/* 41-3. Make Single Post Screen Actually Load The Real Content:
+In ViewSinglePost, let's being by setting up 2 pieces of state. When that ViewSinglePost comp first renders, we won't IMMEDIATELY
+have that post content ready to display yet. Therefore, let's create an if statement and there, check for isLoading value and if
+isLoading is true, return some jsx. Once the response get back from the server, then we can render the actual jsx instead of loading indicator.
+
+Currently, after changing the value of title prop in <Page title={}> to post.title , you STILL see the title of a single post page doesn't
+change, even if you refresh the page or go to another single post page. Why?
+Because this has to do with the nature of our Page comp. Currently if you look at the Page comp, you see that we're setting the
+document.title inside a useEffect and that useEffect isn't watching for any dependencies and that means it would only show the
+FIRST EVER props.title it get. So if you change the dependencies that useEffect() is watching for, to include props.title the problem will be
+solved. Because at the first place, we were telling react to only run that first arg function, the very first time that Page comp is rendered,
+BUT now we see that line of code which says: document.title = ... ; should actually run, anytime the title(which is in the props object of
+Page comp) changes, not just the first time that Page comp is rendered.
+
+We need to make things up, so if you're the owner or author of that post, in that case you can see those 2 edit and delete icons in a single
+post page.
+
+We'll also look how to simulate a slower network connection to see that loading icon. Why?
+Because yest it's super fast for us because the backend server is running on OUR computer, but in the real world, once we push our app up onto
+the web, it would be take more, to load that content for the visitors of our site.
+
+42-4. Animated Loading Icon:
+Let's setup a reusable animated loader icon comp. So instead of just piece of text that says: Loading... , let's actually create a reusable
+comp that we can use throughout our app that displays an animated loading icon.
+
+But first let's simulate a slower connection. Go to devtools/network tab, instead of that online dropdown value, we want to throttle our
+connection, we want to simulate a slower connection, so click on "slow 3G" and then refresh. In real world, that's likely what our visitors
+will see.
+
+The empty second <div> that we have inside <div className="dots-loading"></div> , is necessary for the css animation.
+
+After adding LoadingDotsIcon comp to ProfilePosts comp, tutor ran into a bug. WHY?
+Because our automated webpack setup, automatically injects our updated JS into the browser. But since we're simulating a slow connection,
+somewhere that introduced a bug and the tutor's screen just sat blank for a very long time. To fix that, go to network tab and temporarily
+set that 3G to online, so no longer throttling the connection and then, once we've SAVED our JS, you can just put it back to slow 3G to again
+simulate the slow connection and now if you manually refresh, now you should be able to test and see your loading icon displays again.
+
+Currently we have an issue and that's: when you click on one of the posts and then AS SOON AS we see the loading icon(which means the http
+request is STILL waiting to hear back from the server), we're gonna INTERRUPT things by navigating away like going to home page.
+So click on a post and then immediately(before the response comes back and loading icon gets removed), click on homepage for example.
+Now we have an error that says: "Warning: Can't perform a React state update on an unmounted component. This is a no-op but it indicates
+a memory leak in your app. To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function."
+We'll look at what's that error and and more importantly, how to fix or prevent it.
+
+43-5. Cleaning Up After Ourselves (useEffect):
+We need to cleanup after ourselves. So we saw if you navigate to a post but then immediately click back to the homepage before http request
+in that single post arrives and loading icon actually completes, in console you're gonna see an error.
+
+In ViewSinglePost, we're using axios to send off a request and we have no way of knowing how long that request is going to take. So we
+wait for it to finish and THEN we update the state.
+Important: The problem is that you can't update the state for a component that is NO LONGER MOUNTED OR BEING RENDERED to the screen.
+
+So here's what's going on: For example imagine that axios request in ViewSinglePost takes 3 or 4 seconds to complete. But during those 3 or
+4 seconds, the user clicks away back to the homepage. Well then another 3 or 4 seconds the code AFTER(because it's an async task and
+the code after it, is waiting for it to complete by using await keyword) that axios request is STILL going to attempt to be executed,
+only this component is not EVEN in the picture any longer! Therefore, that's a waste of memory or a wast of computer resources. In other
+words, why we should still execute some code for a component that is not in the screen anymore?
+
+To get around this problem, ANYTIME we perform an async action within a useEffect(), we want to be sure to cleanup after ourselves.
+What I mean is within useEffect() or I should say within the function that we give to useEffect(), we can RETURN a cleanup function.
+So in ViewSinglePost comp, after calling fetchPosts(); , we need to return a cleanup function. You COULD create a named function, but in that
+case, we can just setup an (anonymous) arrow function and that function will run, when that component is unmounted or when it stops being
+rendered. So in this case, within our cleanup function, we would just want to cancel that axios request.
+
+Cleaning up is not limited to just async network requests. It's bigger than that. It's this idea that when a component is unmounted or is no
+longer being used, you want to cleanup after yourself. So aside from just an axios request, you might imagine that a comp might add
+keyboard bindings to listen for a certain key being pressed. Perhaps a full screen search overlay, you'd want to bind in action to when the
+user presses the escape key to close that fullscreen modal. But then once that comp is no longer being rendered, you'd want to remove that
+keyboard event listener.
+Essentially the cleanup function(the function that we return in a useEffect()'s first arg function) is just your chance to pickup after
+yourself after that comp is no longer being used.
+
+So now we need to cancel an axios request. First of all when we CREATE the axios request, we need a way to identify it so that we can access
+it later on to cancel it. So in order to identify that request in ProfilePosts, we want to give it a cancel token. For doing that, right at
+the beginning of function that we're giving to useEffect() , let's create a variable in that SCOPE, so we can access it down there. So we
+didn't create or declare that variable inside that async function or it's try block, because otherwise, it wouldn't be accessible from outside of
+that block. So let's create a variable named ourRequest.
+
+Axios.CancelToken.source() generates a token that can be used and now we want to identity that actual request to /post/${id} . Currently
+we're giving that /post/${id} request, one arg of the url we want to send a request to, but let's give it a second arg which would be
+an object.
+
+So now we have a way of identifying that specific request(the GET request to '/profile/${username}/posts'), so now we just want to
+cancel it at the appropriate time.
+When the page gets too long to response when it WAS on slow 3G(throttling), you need to change it to online and then perform a refresh and
+then back it to slow 3G.
+
+So now if you visit a post and then immediately navigate away, in the console you don't see that error message. Now we do see that log:
+there was a problem, but that's our own custom message. Why?
+Because our axios request lives in a try block, well, when we cancel it, that's gonna trigger our catch block. So we could update the message
+in console.log() of catch block to: there was a problem or the request was cancelled. The point is, we're no longer trying to update
+state for a comp that's no longer even mounted(why? because when the request actually came back, we're gonna update the state, but when
+the request is cancelled, that state update won't be executed at all).
+Now go to Profile and ProfilePosts comp and make the same change. Your app will definitely work without setting this up, but if you want to
+do things the right way, do this refactor(cancel the request within your cleanup function that gets returned within (first arg of) useEffect).
+
+We want to support different types of text formatting within the actual body content of a post. So that way users can make text, bold or
+italic or actually have multiple paragraphs or headlines. */
+/* 44-6. Markdown in React:
+Let's look at how to render markdown formatted text within react.
+In markdown you can wrap a text inside 2 asterisks to make it bold: ***blue** . For making it italic use 1 asterisk. If you want heading level 3,
+you can use 3 hashtags: ###hello and then press enter for rest of the text. For heading level 2, 2 hashtags and ... .
+So the idea is there are those codes or simple text formatting that you can include that will result in actual HTML formatting.
+Also just including a dash and then an item ALL IN ONE ROW like below, will created a bulleted or unordered list.
+
+Currently, if you use these markdown features, you won't get those desired results which we can see that result in ViewSinglePost and
+even if you hit enter, if will be all in 1 line instead of 2 lines. That's because we need to PARSE that content as markdown and in our app,
+we would want to this on the client side or on the web browser side instead of the server side. Because we're using react and
+client side routing. So let's add markdown support WITHIN react. So install: npm i react-markdown
+
+Then in ViewSinglePost, get rid of {post.body} which currently is in main(because we have 2 returning jsx in that comp, right?) returning jsx and
+add: <ReactMarkdown /> and to source prop of ReactMarkdown comp, give it the RAW text(in this case, post.body) that we want to INTERPRET as
+markdown. Now you can see that created post with markdown, with actual markdown!
+
+Sometimes you don't want the users of your website to be able to create ANY element they want. So instead of allowing for all default markdown
+elements, you can actually specify WHICH ones you want to ALLOW. So used allowedTypes prop. 'heading' means h1 to h6 in allowedTypes array and
+'list' means bulleted list or numbered list*/
+/* SECTION-8. Edit & Delete Post Actions:
+45-1. Adding Tooltips on Hover for Actions:
 */
 
 

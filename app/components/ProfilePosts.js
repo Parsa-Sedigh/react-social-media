@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Link, useParams} from 'react-router-dom';
 import Axios from "axios";
-import LoadingDotsIcon from "./LoadingDotsIcon.jsx";
+import LoadingDotsIcon from "./LoadingDotsIcon";
 
 const ProfilePosts = () => {
     const [isLoading, setIsLoading] = useState(true);

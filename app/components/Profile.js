@@ -1,9 +1,9 @@
 import React, {useEffect, useContext, useState} from 'react';
-import Page from "./Page.jsx";
+import Page from "./Page";
 import {useParams} from "react-router-dom";
 import Axios from "axios";
-import StateContext from "../StateContext.jsx";
-import ProfilePosts from "./ProfilePosts.jsx";
+import StateContext from "../StateContext";
+import ProfilePosts from "./ProfilePosts";
 
 const Profile = () => {
     const {username} = useParams();

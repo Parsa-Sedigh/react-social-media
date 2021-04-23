@@ -1,7 +1,7 @@
 const path = require("path")
 
 module.exports = {
-    entry: "./app/Main.jsx", // in original file, this was Main.js not Main.jsx
+    entry: "./app/Main.js", // in original file, this was Main.js not Main.js
     output: {
         publicPath: "/",
         path: path.resolve(__dirname, "app"),

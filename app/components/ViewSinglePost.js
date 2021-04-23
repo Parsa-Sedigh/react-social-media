@@ -1,9 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import {useParams, Link} from 'react-router-dom';
 import Axios from "axios";
-import {ReactMarkdown} from 'react-markdown';
-import Page from "./Page.jsx";
-import LoadingDotsIcon from "./LoadingDotsIcon.jsx";
+import ReactMarkdown from 'react-markdown';
+import Page from "./Page";
+import LoadingDotsIcon from "./LoadingDotsIcon";
+import ReactTooltip from "react-tooltip";
 
 const ViewSinglePost = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -40,8 +41,10 @@ const ViewSinglePost = () => {
             <div className="d-flex justify-content-between">
                 <h2>{post.title}</h2>
                 <span className="pt-2">
-          <Link to="#" className="text-primary mr-2" title="Edit"><i className="fas fa-edit"></i></Link>
-          <Link to="#" className="delete-post-button text-danger" title="Delete"><i className="fas fa-trash"></i></Link>
+          <Link to={`/post/${post._id}/edit`} data-tip="Edit" data-for="edit" className="text-primary mr-2"><i className="fas fa-edit"></i></Link>
+                    <ReactTooltip id="edit" className="custom-tooltip" />{' '}
+          <Link to="#" data-tip="Delete" data-for="delete" className="delete-post-button text-danger"><i className="fas fa-trash"></i></Link>
+                    <ReactTooltip id="delete" className="custom-tooltip" />
         </span>
             </div>
 
@@ -53,7 +56,7 @@ const ViewSinglePost = () => {
             </p>
 
             <div className="body-content">
-                <ReactMarkdown source={post.body} allowedTypes={['paragraph', 'strong', 'emphasize', 'text', 'heading', 'list', 'listItem']} />
+                <ReactMarkdown source={post.body} allowedTypes={['paragraph', 'strong', 'emphasis', 'text', 'heading', 'list', 'listItem']} />
             </div>
         </Page>
     );

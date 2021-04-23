@@ -1,6 +1,6 @@
 import React, {useState, useContext} from 'react';
 import Axios from "axios";
-import DispatchContext from "../DispatchContext.jsx";
+import DispatchContext from "../DispatchContext";
 
 const HeaderLoggedOut = (props) => {
     const [username, setUsername] = useState();

@@ -3,19 +3,20 @@ import ReactDOM from 'react-dom';
 import {BrowserRouter, Switch, Route} from 'react-router-dom';
 
 import {useImmerReducer} from "use-immer";
-import Header from './components/Header.jsx';
-import HomeGuest from "./components/HomeGuest.jsx";
-import Footer from "./components/Footer.jsx";
-import About from "./components/About.jsx";
-import Terms from "./components/Terms.jsx";
-import Home from "./components/Home.jsx";
-import CreatePost from "./components/CreatePost.jsx";
+import Header from './components/Header';
+import HomeGuest from "./components/HomeGuest";
+import Footer from "./components/Footer";
+import About from "./components/About";
+import Terms from "./components/Terms";
+import Home from "./components/Home";
+import CreatePost from "./components/CreatePost";
 import Axios from "axios";
-import ViewSinglePost from "./components/ViewSinglePost.jsx";
-import FlashMessages from "./components/FlashMessages.jsx";
-import StateContext from "./StateContext.jsx";
-import DispatchContext from "./DispatchContext.jsx";
-import Profile from "./components/Profile.jsx";
+import ViewSinglePost from "./components/ViewSinglePost";
+import FlashMessages from "./components/FlashMessages";
+import StateContext from "./StateContext";
+import DispatchContext from "./DispatchContext";
+import Profile from "./components/Profile";
+import EditPost from "./components/EditPost";
 
 Axios.defaults.baseURL = 'http://localhost:8080';
 
@@ -95,11 +96,14 @@ const Main = () => {
                             {/*<CreatePost addFlashMessage={addFlashMessage}/>*/}
                             <CreatePost/>
                         </Route>
-                        <Route path="/post/:id">
+                        <Route path="/post/:id" exact>
                             <ViewSinglePost/>
                         </Route>
                         <Route path="/profile/:username">
                             <Profile />
+                        </Route>
+                        <Route path="/post/:id/edit" exact>
+                            <EditPost />
                         </Route>
                     </Switch>
                     <Footer/>

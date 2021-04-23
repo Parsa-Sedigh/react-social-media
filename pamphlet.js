@@ -729,13 +729,13 @@ react package is the core react library and since we're creating web apps instea
 npm i react react-dom
 
 Now create a folder named app. Any code that we write will go within app folder whereas the root of our project(folder) contains files with
-info about our project. Now in app create: index.html and Main.jsx .
+info about our project. Now in app create: index.html and Main.js .
 
 In vscode, you can setup skeleton of an html web page by typing: doc and hit tab. Now right before closing </body> tag let's pull in
-our js file. So create a <script src="Main.jsx"> and then right ABOVE that <script> tag but still within the <body>, add an empty <div> that
+our js file. So create a <script src="Main.js"> and then right ABOVE that <script> tag but still within the <body>, add an empty <div> that
 our react code can hook onto or render into with an id. So: <div id="app"></div>
 So then react can look for this id and render into that <div id="app">.
-Now go to Main.jsx file.
+Now go to Main.js file.
 
 The first arg we pass to ReactDOM.render() is the comp that we want to render and the second arg is the element on the web page that you want
 to render it into(so you must have an already exist element on the page to render that comp into it.)
@@ -743,7 +743,7 @@ EX)
 ReactDOM.render(<ExampleComponent />, document.querySelector('#app'));
 
 Our work won't work yet! We don't even need to try to view index.html in a web browser yet to know that this won't work!!!
-Because when we serve that Main.jsx to the public and web browser downloads it, well, sure, you and I have these packages on OUR computer in our
+Because when we serve that Main.js to the public and web browser downloads it, well, sure, you and I have these packages on OUR computer in our
 node_modules folder but the public viewer of our website won't have those react libraries. So the question becomes, how can we bundle up
 those packages with the code that we actually wrote ? How can we bundle that up to deliver it to the viewers of our site?
 Also let's not forget that the browsers will have no idea how to handle the jsx syntax.
@@ -757,7 +757,7 @@ We need to create a file within the root of our project folder that tells webpac
 So don't create this file in app folder but in our overall project folder and name it: webpack.config.js and the name is crucial. Because
 webpack knows to look for this exact filename.
 
-In config of webpack, we're saying entry-point into our app is our Main.jsx file and then we want webpack to bundle up our code as well as
+In config of webpack, we're saying entry-point into our app is our Main.js file and then we want webpack to bundle up our code as well as
 our dependencies that we import into a generated file named bundled.js . We're also setting up a development server on port 3000 and in
 place where we're saying: @babel/preset-react ... , that's where we're taking care of jsx transformation. So the tool named babel is gonna
 transpile jsx into regular js.
@@ -766,7 +766,7 @@ Now in order for our webpack setup to actually leverage those tools, we need to 
 @babel/preset-react babel-loaded .
 
 At this point, our webpack setup now has everything it needs to do it's job and remember, it's job is to package up our code and our
-dependencies into a new generated file named bundled.js . So let's go to index.html and let's get rid of <script src="Main.jsx"> and say:
+dependencies into a new generated file named bundled.js . So let's go to index.html and let's get rid of <script src="Main.js"> and say:
 <script src="/bundled.js"> and be sure to include / at the beginning here.
 
 Now we need to do is come up with a way to tell webpack to start doing it's job. We need some sort of command to tell webpack to
@@ -777,7 +777,7 @@ After running that command, we can go to browser and visit localhost:3000 .
 
 Now after changing code, the webpack-dev-server just automatically reloads it for us, it refreshes the browser. We can take things even
 one step further and instead of the browser automatically refreshing for us, we can set it up so it doesn't even refresh at all.
-It just actually loads the new js on the fly, asynchronously. To do that, go to Main.jsx file and down at the very bottom of the file type:
+It just actually loads the new js on the fly, asynchronously. To do that, go to Main.js file and down at the very bottom of the file type:
 if (module.hot) {
     module.hot.accept();
 }
@@ -827,9 +827,9 @@ Now let's create a new file named Header.js .
 Now before we worry about moving over the header related html or jsx, let's first get that new file ready to be imported within our main file.
 So create a function named Header and below that function say:
 export default Header.
-This way, when our main javascript file(Main.js or Main.jsx) tries to import that Header.jsx file, things will work as intended.
+This way, when our main javascript file(Main.js or Main.js) tries to import that Header.js file, things will work as intended.
 
-Now let's go grab that header related jsx. After doing that, in Main.jsx(js) file, import that Header file and then write: <Header />
+Now let's go grab that header related jsx. After doing that, in Main.js(js) file, import that Header file and then write: <Header />
 
 Currently if you see the console of browser, you see a couple of react errors and warnings, like "invalid dom property `autocomplete`" and ...
 but if you use webstorm, you don't won't see them, because when pasting native html into jsx format, webstorm will take care of transformation
@@ -876,7 +876,7 @@ Now we need a way to display the appropriate comp, depending on the current url.
 
 You can use {} in import to perform a destructure.
 
-Currently, our jsx in Main.jsx is wrapped within a react fragment, why? Because sort of instead of a generic wrapper <div>, we're using that
+Currently, our jsx in Main.js is wrapped within a react fragment, why? Because sort of instead of a generic wrapper <div>, we're using that
 syntax(<>...</>). That works perfectly. However now that we want to use react-router, we want to wrap our app within the router component.
 So we might swap that from a react fragment to the browser router comp. So instead of a react fragment use BrowserRouter comp. So:
 <>...</> ----> <BrowserRouter>...</BrowserRouter>
@@ -990,12 +990,12 @@ Now in turns of what that Page comp should return as jsx, let's have it return t
 that's gonna call the Page component.
 So go to About comp and swap <Container></Container> with <Page>.
 
-We used props.children in Page.jsx , because when for example About.jsx uses <Page> , we have that nested content in between tags of <Page> and
-then Page() comp is gonna display that content with props.children . Also because Page.jsx is taking care of document title and scrolling,
-we no longer need that useEffect() in About.jsx .
+We used props.children in Page.js , because when for example About.js uses <Page> , we have that nested content in between tags of <Page> and
+then Page() comp is gonna display that content with props.children . Also because Page.js is taking care of document title and scrolling,
+we no longer need that useEffect() in About.js .
 This way we don't need to duplicate any of that code within multiple comps.
 
-So when About.jsx(more specific component) uses Page comp, the Page(more generic component) is gonna take care of document and scrolling and
+So when About.js(more specific component) uses Page comp, the Page(more generic component) is gonna take care of document and scrolling and
 displaying the unique content inside the container.
 
 Composition means: Components using OTHER components using OTHER components ... and passing props around as necessary. Generally speaking,
@@ -1098,7 +1098,7 @@ it's not a correct username and password for login.*/
 You can edit that react snippet we made, to not have those react fragment tabs, because in most cases you won't need them.
 
 Because currently, within the HeaderLoggedOut file that sends of the request to server, we would have no way of accessing that
-piece of state which we currently declared in Header.jsx file. To get around that, we can pass it as a prop to HeaderLoggedOut.
+piece of state which we currently declared in Header.js file. To get around that, we can pass it as a prop to HeaderLoggedOut.
 So give HeaderLoggedOut, a prop of setLoggedIn. So because we gave HeaderLoggedOut a prop, we need to include props arg for that
 HeaderLoggedOut function.
 
@@ -1782,9 +1782,80 @@ elements, you can actually specify WHICH ones you want to ALLOW. So used allowed
 'list' means bulleted list or numbered list*/
 /* SECTION-8. Edit & Delete Post Actions:
 45-1. Adding Tooltips on Hover for Actions:
+The react ecosystem is full of all sorts of plugins or packages or we should call them, pre-existing comps. So let's grab a package from npm that
+will make it easy to create tool-tips. So: npm i react-tooltip . Now in ViewSinglePost comp, after the href attr of
+<a className="text-primary mr-2" title="edit">, add another attr or prop and it NEEDS to be named, data-tip="" and the value of this prop is the
+text that users will see when they hover over it. Then give that <a>(or actually <Link>) element another prop called data-for.
+Why we used this data-for? Doesn't it feel redunant? No, you'll see where this comes into play in a moment.
+Now right after that <Link> of edit, use ReactTooltip comp and we give it an id that matches that data-for prop that we set earlier, so edit and
+not Edit(Edit is for data-tip but we want to match data-for). Now the tooltip is working.
+
+Currently you notice that if we hover in one spot, in ADDITION to just seeing that custom tooltip, we ALSO see the web browser's default "edit"
+label. To get rid of that, on the <Link> we need to get rid of title attr.
+
+We need to add some horizontal spacing between two icons. Originally, in the html, it did include extra space there, however in react,
+when elements sit on different lines like:
+<a>...</a>
+<a>...</a>,
+react doesn't add in any whitespace when it renders the html to the browser. So to get around this, in between the first <ReactTooltip> and the
+delete icon, add a {' '} (between quotes, there's a space). That was an extra bit of spacing.
+
+46-2. Edit (Update) Post Component:
+Just to make sure there's no confusion between those /post/:id and /post/:id/edit routes, on both of them(viewing a single post and
+editing a single post), let's give them an attr of exact.
+
+After giving an input a value attr, if you try to type in, you notice that nothing happens and you can't type anything! This is because by
+giving an <input> a value attr, react considers it a controlled input. In order to be able to type in, we would need to give them onChange prop.
+Also we want to add client side validation to EditPost form which makes if you leave either of those fields completely blank, we don't even
+want the user to be able to send a request to the server.
+
+We're gonna set things up so that we use a reducer and a dispatch and then the state that our reducer manages, that's what we can send to the server
+when you actually try to submit that edit post. Now I do want to point out that you don't NEED to use reducer in order to do more complex
+things in react. But actually it's easier to work with complex logic and state objects when you use a reducer.
+
+First we need to use useImmerReducer() in EditPost, so: const [state, dispatch] = useImmerReducer();
+
+Remember that the first arg of useImmerReducer() is a function that will server as our reducer and the second arg is our initial or original state.
+In this case, for initial or original state, we can set up an empty object which I named it original state.
+
+For properties of originalState, we start giving it all of the properties that we know we'll need. So we're definitely gonna need sth to
+HOLD(because it's a state right?) the title value as well as the body content value. However let's think of the future, if we eventually want to
+add client side validation, we'd also want to keep track of them if one of those fields has an error. So instead of a simple value for title property,
+we give it an object, so by doing that, it can have multiple properties.
+We'd also want a property that keeps track of whether the initial post data has loaded or not, which as usual name it loading and by default we
+set it to true, because when you first come to the page, that's what the browser is gonna be busy doing loading or fetching that data.
+Also we added isSaving property, so that's the property we'll work with, when you actually click that save updates button to send that
+request. So the milliseconds you click that button, we'll set isSaving to true and then once we hear back from the axios's request, we can
+set it back to false. This way we can cool things like have that button to be grey out or disabled, so you can't click it a second time accidentally,
+while the first request is still processing.
+
+So a cool trick is to also create a separate state for when the user clicks on a button to send a request and then that state is set to true and then
+when the response comes back, we can set back that state to false. Like what we did with isSaving state in EditPost.
+
+The sendCount is where we can keep track of how many times we've tried to send an axios request.
+
+Essentially this way, ALL of our logic can live in our reducer and then if we increment the value of sendCount, the actual code that sends off an
+axios request can live in a useEffect() that watches this piece of state(sendCount) for changes.
+So now we have setup our initial state.
+
+So before we worry about actually submitting that form, let's first think about the data that we're loading when the page loads. So we're actually
+dealing with two axios requests in EditPost. The first request is like a readonly request, because it's just pulling in the existing title and
+body values for that particular post that we're seeing. So let's make sure that that data is getting into our state, now that we're using a
+reducer.
+First make some cleanings, because now that we're using ourReducer, we no longer need those 3 lines of useState() and useParams() . Also remove
+the setPost() and setIsLoading() inside useEffect() and instead, let's use our dispatch and give it the type of action with type property. So
+we used a descriptive name for the completeness of fetch and I named it 'fetchComplete', now in our reducer, let's create a case within a switch
+with that matching name('fetchComplete'). Important: Essentially we're just saying what should happen to our state, when this action occurs.
+First of all in () of ourReducer() give it 2 params which are draft and action. The value property of action is the object that server server sent
+back to us in case of fetchComplete of course!, so it's not always true! So in other cases, the value property might have other meaning.
+
+Also we replace loading and saveIsLoading names to isFetching and isSaving names in our initial state object.*/
+/* 47-3. Edit Post Continued:
 */
 
 
 /* My notes:
 Because I think jsx is special, when you import some comp into another comp, you need to SPECIFY the jsx EXTENSION. But if you're
-importing a normal js extension file, you don't need to specify that .js .*/
+importing a normal js extension file, you don't need to specify that .js .
+
+If you change the extension of files from jsx to js or vice versa, you need to re-run the development server.*/

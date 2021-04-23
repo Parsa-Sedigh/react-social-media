@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import Page from './Page.jsx';
+import Page from './Page';
 import Axios from "axios";
 
 const HomeGuest = () => {

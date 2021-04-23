@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import Container from './Container.jsx';
+import Container from './Container';
 
 const Page = (props) => {
     useEffect(() => {
